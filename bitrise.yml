@@ -5,9 +5,13 @@ project_type: ios
 pipelines:
   deploy_all:
     stages:
+    - prepare_stage: {}
     - build_stage: {}
     - notify_stage: {}
 stages:
+  prepare_stage:
+    workflows:
+    - prepare: {}
   build_stage:
     workflows:
     - build_iOS_16: {}
@@ -18,16 +22,26 @@ stages:
 workflows:
   _finish:
     steps:
-    - cache-push@2: {}
     - deploy-to-bitrise-io@2: {}
   _setup:
     steps:
-    - git-clone@7: {}
-    - cache-pull@2: {}
+    - pull-intermediate-files@1:
+        inputs:
+        - verbose: 'true'
+    - script@1:
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            # fail if any commands fails
+            set -e
+            set -o pipefail
+            set -x
+
+            mv $TRANSPORTED_SOURCE_DIR $BITRISE_SOURCE_DIR/..
     - certificate-and-profile-installer@1: {}
     - recreate-user-schemes@1:
         inputs:
-        - project_path: "$BITRISE_PROJECT_PATH"
+        - project_path: "$BITRISE_SOURCE_DIR/$BITRISE_PROJECT_PATH"
   build_iOS_16:
     before_run:
     - _setup
@@ -55,15 +69,27 @@ workflows:
         inputs:
         - project_path: "$BITRISE_PROJECT_PATH"
         - scheme: "$BITRISE_SCHEME"
+        - compile_bitcode: 'no'
+        - upload_bitcode: 'no'
         - distribution_method: "$BITRISE_DISTRIBUTION_METHOD"
         - automatic_code_signing: apple-id
         - export_development_team: "$BITRISE_TEAM"
     envs:
-    - SAMPLE_ENV_VAR: Test target A
+    - SAMPLE_ENV_VAR: Test target B
     meta:
       bitrise.io:
         stack: osx-xcode-13.4.x
         machine_type_id: g2-m1.8core
+  prepare:
+    steps:
+    - git-clone@8.0: {}
+    - restore-cocoapods-cache@1: {}
+    - certificate-and-profile-installer@1: {}
+    - cocoapods-install: {}
+    - save-cocoapods-cache@1: {}
+    - deploy-to-bitrise-io@2:
+        inputs:
+        - pipeline_intermediate_files: "$BITRISE_SOURCE_DIR:TRANSPORTED_SOURCE_DIR"
   send_notification:
     steps:
     - script@1:
@@ -75,7 +101,7 @@ workflows:
             set -o pipefail
             set -x
 
-            echo "Demo 123"
+            echo "Send notification 123"
     envs:
     - TARGET: Test target A
 meta:
@@ -86,7 +112,7 @@ app:
   envs:
   - opts:
       is_expand: false
-    BITRISE_PROJECT_PATH: BitriseTest.xcodeproj
+    BITRISE_PROJECT_PATH: BitriseTest.xcworkspace
   - opts:
       is_expand: false
     BITRISE_SCHEME: BitriseTest
