@@ -1,0 +1,29 @@
+PODS:
+  - Alamofire (5.6.4)
+  - Bolts (1.9.1):
+    - Bolts/AppLinks (= 1.9.1)
+    - Bolts/Tasks (= 1.9.1)
+  - Bolts/AppLinks (1.9.1):
+    - Bolts/Tasks
+  - Bolts/Tasks (1.9.1)
+  - FBSDKCoreKit (4.44.1):
+    - Bolts (~> 1.9)
+
+DEPENDENCIES:
+  - Alamofire (~> 5.6.4)
+  - FBSDKCoreKit (~> 4.9)
+
+SPEC REPOS:
+  trunk:
+    - Alamofire
+    - Bolts
+    - FBSDKCoreKit
+
+SPEC CHECKSUMS:
+  Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
+  Bolts: 8c1e8aab2f603387b8b9924f57d1d64f43d3ffdc
+  FBSDKCoreKit: a823ae35bdb60ebb8d7a7e51abe7c5d87d2bfced
+
+PODFILE CHECKSUM: 6e193eacd867dc0f562c4f9b9ba147c9c4580b33
+
+COCOAPODS: 1.11.3
